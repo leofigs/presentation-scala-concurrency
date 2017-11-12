@@ -8,14 +8,11 @@
 
 # Agenda
 
-**Com o Leo**
 - Conceitos|
 - Scala? |
 - Collections Paralelas e Concorrentes|
 - Software Transaction Memory|
-- Futures and Promises|s
-
-**Com a Wal**
+- Futures and Promises|
 - Modelo de Actors|
 - Actors em Scala|
 
