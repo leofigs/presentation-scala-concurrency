@@ -3,21 +3,6 @@
 ## Paralelismo, Concorrência e Scala
 
 ---
-@title[Agenda]
-
-### Agenda
-
-**Leo:**
-- Conceitos|
-- Scala |
-- Collections Paralelas|
-- Futures|
-
-**Wal:**
-- Modelo de Actors|
-- Actors em Scala|
-
----
 @title[Perfil: Leonardo]
 
 ### Quem é o Leonardo
@@ -43,7 +28,7 @@ Note:
 ---
 @title[O que é Concorrência]
 
-### Concorrência
+### O que é Concorrência
 
 ![Concorrência](assets/concurrency.gif)
 
@@ -53,6 +38,77 @@ Note:
 - Ex: multiplas abas do browser e outros programmas rodando ao mesmo tempo
 - lida com comunicação e coordenação de mensagens, threads e processos
 - Pode ser concorrente sem ser paralelo
+
+---
+@title[Sincrono x Assincrono 1 ]
+
+## Sincrono x Assincrono
+
+Sincrono: Atividades ou processos que começam e terminam de forma sequencial. Se for mais de um processo interdependente eles coordenam o momento de executar.
+
+![sync](assets/sync.gif)
+
+---
+@title[Sincrono x Assincrono 2 ]
+
+## Sincrono x Assincrono
+
+Assincrono: Atividades ou processos executam de forma não sequencial.
+
+![sync](assets/assync.gif)
+
+---
+@title[Problemas de concorrencia]
+
+## Problemas de concorrencia
+
+- Não determinismo
+- Race condition
+- Deadlocks
+- Resource starvation
+
+---
+@title[Não determinismo]
+
+## O que é Não determinismo
+
+Execuções não retornam sempre o mesmo valor. Muitas vezes ocorre da tentativa de sincronizar processos não sincronizaveis, como callbacks.
+
+Ocorre também quando processos que deveríam ser sincronos são codificados como assincronos.
+
+Note:
+não determinismo muitas vezes é esperado no processamento concorrente mas normalmente é inesperado no resultado do processamento
+
+---
+@title[Race conditions]
+
+## O que são Race conditions
+
+Acontece quando uma aplicação depende de que processos acontecam em sequencia. Principalmente no acesso a dados compartilhados.
+
+Exemplo:
+```
+Thread 1 lê o valor compartilhado A
+Thread 2 lê o valor compartilhado A
+Thread 2 grava um novo valor
+Thread 1 grava um novo valor
+
+O valor gravado pela thread 2 é perdido.
+```
+---
+@title[Deadlocks]
+
+## O que são Deadlocks
+
+Deadlock é a situação onde dois ou mais processos esperam um ao outro para continuar executando.
+
+
+---
+@title[Resource starvation]
+
+## O que é Resource starvation
+
+É quando um processo tem um recurso negado perpetuamente.
 
 ---
 @title[Scala]
@@ -87,6 +143,16 @@ Note:
 - Empresa poliglota
 - Scala é uma das linguagens principais
 - Scala é utilizada desde 2013
+---
+
+@title[Concorrencia e Scala]
+
+## Concorrencia e Scala
+
+- Software Transaction Memory (STM)
+- Coleções paralelas
+- Futures e Promises
+- Actors
 
 ---
 @title[Collections paralelas]
@@ -116,7 +182,6 @@ Varios fatores influenciam:
 - Existem versões para as collections mais comuns |
 - Muito facil de usar (.par) |
 - Não é indicado para todos os usos ( teste sempre )
-
 
 
 Note:
