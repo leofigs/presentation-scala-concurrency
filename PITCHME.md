@@ -3,17 +3,15 @@
 ## Paralelismo, Concorrência e Scala
 
 ---
-
 @title[Agenda]
 
 ### Agenda
 
 **Leo:**
 - Conceitos|
-- Scala? |
-- Collections Paralelas e Concorrentes|
-- Software Transaction Memory|
-- Futures and Promises|
+- Scala |
+- Collections Paralelas|
+- Futures|
 
 **Wal:**
 - Modelo de Actors|
@@ -26,10 +24,420 @@
 - 99ner
 - Cuiabano em Sampa
 
----
 
+---
 @title[O que é Paralelismo]
 
-### Paralelismo
+### O que é Paralelismo
 
-![Paralelismo](assets/parallelism.jpg)
+![Paralelismo](assets/parallelism.gif)
+
+Note:
+- coisas acontecendo ao mesmo tempo
+- propriedade do *Hardware* ou plataforma
+
+---
+@title[O que é Concorrência]
+
+### Concorrência
+
+![Concorrência](assets/concurrency.gif)
+
+Note:
+- propriedade do Software
+- programas não sequenciais / fragmentados / multi-tasking
+- Ex: multiplas abas do browser e outros programmas rodando ao mesmo tempo
+- lida com comunicação e coordenação de mensagens, threads e processos
+- Pode ser concorrente sem ser paralelo
+
+---
+@title[Porque Scala]
+
+### Porque Scala?
+
+- Funcional|
+- Roda na JVM|
+-
+- Performático ( de novo JVM )|
+- Muito legal|
+
+---
+@title[Uso real Scala - 99]
+### E é utilizada mesmo?
+
+![99 Scala](assets/99_active_repos.png)
+
+Note:
+- Ativos = criados ou modificados em 2017
+- Empresa poliglota
+- Scala é uma das linguagens principais
+- Scala é utilizada desde 2013
+
+---
+@title[Collections paralelas]
+
+### Collections Paralelas
+
+Otimizam computações em collections utilizando multiplos processadores.
+
+Varios fatores influenciam:
+
+- JVM
+- collections vs operação (sum, max, filter, foreach...)
+- side effects ( concorrencia )
+- gerenciamento de memoria ( GC )
+
+
+---
+@title[Collections paralelas 2]
+
+### Collections paralelas
+
+- Existem versões para as collections mais comuns |
+- Muito facil de usar (.par) |
+- Não é indicado para todos os usos ( teste sempre )
+
+
+
+Note:
+Algumas operações são fáceis de paralelizar
+
+---
+@title[Collections paralelas - Benchmark]
+
+### É mais rapido mesmo?
+
+Benchmarks:
+
+Macbook 2,6 GHz Intel Core i7 16 GB RAM 2133 MHz DDR3
+
+OpenJDK Java Microbenchmark Harness (JMH): 10 warmups e 10 iterações de medição
+
+---
+@title[Collections paralelas - Benchmark 1]
+
+### Benchmark Seq.max
+
+```scala
+class SeqMax {
+
+  def nextLong = Random.nextLong
+
+  @Benchmark
+  def maxSequential =  Seq.fill(10000)(nextLong).max
+
+  @Benchmark
+  def maxParallel   =  Seq.fill(10000)(nextLong).par.max
+
+}
+```
+
+@[5-6](Execução Sequencial)
+@[8-9](Execução Paralela)
+---
+@title[Collections paralelas - Benchmark 1 Result]
+
+### Resultado
+
+```
+[info] Benchmark             Mode  Cnt  Score   Error  Units
+[info] SeqMax.maxParallel    avgt   10  0.541 ± 0.011  ms/op
+[info] SeqMax.maxSequential  avgt   10  0.341 ± 0.010  ms/op
+```
+
+Paralelo:   0.011 ms/op [Average]
+Sequencial: **0.010 ms/op [Average]**
+
+---
+@title[Collections paralelas - Benchmark 1 Result]
+
+Mas outros fatores podem influenciar, como por exemplo o *ThreadLocalRandom* que tem performance multi-threaded melhor que o Random
+
+
+Com ThreadLocalRandom:
+
+Paralelo:   **0.011 ms/op [Average]**
+Sequencial: 0.014 ms/op [Average]
+
+
+---
+@title[Collections paralelas - Benchmark 2]
+
+```scala
+class VectorMax {
+
+  def nextLong = ThreadLocalRandom.current.nextLong
+
+  @Benchmark
+  def maxSequential =  Vector.fill(10000)(nextLong).max
+
+  @Benchmark
+  def maxParallel   =  Vector.fill(10000)(nextLong).par.max
+
+}
+```
+
+@[5-6](Execução Sequencial)
+@[8-9](Execução Paralela)
+
+---
+@title[Collections paralelas - Benchmark 2 Result]
+
+### Resultado
+
+```
+[info] Benchmark                Mode  Cnt  Score   Error  Units
+[info] VectorMax.maxParallel    avgt   20  2.243 ± 0.073  ms/op
+[info] VectorMax.maxSequential  avgt   20  2.063 ± 0.137  ms/op
+```
+
+Paralelo:   **0.073 ms/op [Average]**
+Sequencial: 0.137 ms/op [Average]
+
+
+Note:
+Amostragem maior = melhor performance no paralelo
+
+
+---
+@title[Futures]
+
+## Futures
+
+---
+@title[Future - Definição]
+
+Futures são objetos para valores que podem não existir ainda.
+
+O valor de um future é disponibilizado concorrentemente. Permitindo um código mais rapido, assíncrono, non-blocking e paralelo.
+
+---
+@title[Future - Exemplo]
+
+```scala
+val inverseFuture : Future[Matrix] = Future {
+  fatMatrix.inverse()
+}
+```
+
+Note:
+O programa continua executando e não bloqueia apos iniciar o processamento
+
+---
+@title[Future - Execution Context]
+
+### E como funciona?
+
+O Future precisa de um ExecutionContext para executar a rotina. ( que é similar ao Executor do Java)
+
+O ExecutionContext pode executar na mesma thread, criar uma nova ou usar alguma do pool.
+
+Note:
+Scala possui um ExecutionContext padrão global, que pode ser extendido se necessário.
+
+
+
+---
+@title[Future - ExecutionContext Example]
+
+### Explícito
+```scala
+val inverseFuture: Future[Matrix] = Future {
+  fatMatrix.inverse()
+}(executionContext)
+```
+
+### Implicito
+```scala
+implicit val ec: ExecutionContext = ...
+val inverseFuture : Future[Matrix] = Future {
+  fatMatrix.inverse()
+}
+```
+---
+@title[Future - ExecutionContext Global]
+
+### Com o ExecutionContext Global
+
+```scala
+import scala.concurrent.ExecutionContext.Implicits.global
+...
+val inverseFuture : Future[Matrix] = Future {
+  fatMatrix.inverse()
+}
+```
+
+Note:
+Possui um Thread Pool de Tamanho Fixo
+
+---
+@title[Future - Completo ou Incompleto]
+
+###
+
+Quando um Future ainda está processando ele esta **incompleto**. Quando finaliza esta **completo**.
+
+Um Future pode finalizar com **sucesso** ou **falha**.
+
+---
+@title[Future - Callback]
+
+### Callback
+
+```scala
+import scala.util.Random
+import scala.util.{ Success, Failure}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+val aFewNumbers : Future[List[Int]] = Future { List.fill(10)(Random.nextInt) }
+
+aFewNumbers.onComplete {
+  case Success(numbersList) => println("Os números são " + numbersList.toString)
+  case Failure(err) 				=> println("Sem números para você :(")
+}
+```
+
+---
+@title[Future - Callbacks ForEach]
+
+### Callback com foreach
+
+```scala
+​
+import scala.util.Random
+import scala.util.{ Success, Failure}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+​
+​
+val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+​
+aFewNumbers.foreach(numList => numList map println)
+​
+aFewNumbers.failed.foreach(err => println(s"The house felt down. Error $err"))
+```
+
+Note:
+como foreach não tem side-effect ( retorna Unit), ele se comporta como um callback
+Codigo: println com parametros inferidos
+Codigo: string interpolation
+
+---
+@title[Future - Map]
+
+### Mapping the Future
+
+```scala
+import scala.util.Random
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+
+val onlyTens: Future[List[Int]] = aFewNumbers.map(numList => numList.map(num => 10))
+
+onlyTens.foreach(numList => numList map println)
+```
+---
+@title[Future - FlatMap 1]
+
+### Future of Future
+
+```scala
+import scala.util.Random
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
+
+val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+
+val onlyTens = aFewNumbers.map(numList => allTens(numList))
+
+```
+
+@[10](O tipo de onlyTens é Future[Future[List[Int]]])
+---
+@title[Future - FlatMap 2]
+
+### Flatmapping the Future
+
+```scala
+import scala.util.Random
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
+
+val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+
+val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
+```
+
+@[10](O tipo de onlyTens é Future[List[Int]])
+
+---
+@title[Future - For]
+
+### Future composition com For
+
+```scala
+import scala.util.Random
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
+def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
+
+val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+
+val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
+
+val group = for {
+                  listOne <- aFewNumbers
+                  listTwo <- onlyTens
+                  if listOne.length == listTwo.length
+                } yield(listOne ++ listTwo)
+```
+
+---
+@title[Future - Promises]
+
+### Promise
+
+Objeto que pode ser completado com um valor ou um erro.
+
+Encapsula um future.
+
+---
+@title[Future - Promise - Example]
+
+### Promise Example
+```scala
+object Government {
+  def redeemCampaignPledge(): Future[TaxCut] = {
+    val p = Promise[TaxCut]()
+    Future {
+      println("Starting the new legislative period.")
+      Thread.sleep(2000)
+      p.success(TaxCut(20))
+      println("We reduced the taxes! You must reelect us!!!!1111")
+    }
+    p.future
+  }
+}
+```
+
+
+
+@title[Bibliografia / Sources]
+
+
+### Fontes:
+
+Gifs by http://slimjimstudios.tumblr.com/
