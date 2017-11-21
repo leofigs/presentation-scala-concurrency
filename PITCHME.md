@@ -22,7 +22,11 @@
 
 ### Quem é o Leonardo
 - 99ner
-- Cuiabano em Sampa
+- Programador Scala há 1 ano +-
+- Antes disso Python, Java, .Net ...
+- github/leofigs
+- leofigs no gmail
+- @leonardofigs no Twitter
 
 
 ---
@@ -51,14 +55,25 @@ Note:
 - Pode ser concorrente sem ser paralelo
 
 ---
+@title[Scala]
+
+
+## Scala
+
+Note:
+- Lançada em 2014
+- Criada por Martim Odersky
+- Multi paradigmas ( Funcional + OO)
+- Compilada para bytecode Java
+
+---
 @title[Porque Scala]
 
 ### Porque Scala?
 
-- Funcional|
-- Roda na JVM|
--
-- Performático ( de novo JVM )|
+- Paradigma Funcional = menos código e maior assertividade|
+- Roda na JVM - Interoperabilidade com Java|
+- Sistemas assincronos e performáticos|
 - Muito legal|
 
 ---
@@ -72,6 +87,11 @@ Note:
 - Empresa poliglota
 - Scala é uma das linguagens principais
 - Scala é utilizada desde 2013
+
+---
+@title[Collections paralelas]
+
+## Collections Paralelas
 
 ---
 @title[Collections paralelas]
@@ -204,6 +224,8 @@ Amostragem maior = melhor performance no paralelo
 
 ## Futures
 
+![Future](assets/future.gif)
+
 ---
 @title[Future - Definição]
 
@@ -273,7 +295,7 @@ Possui um Thread Pool de Tamanho Fixo
 ---
 @title[Future - Completo ou Incompleto]
 
-###
+### Completando um Future
 
 Quando um Future ainda está processando ele esta **incompleto**. Quando finaliza esta **completo**.
 
@@ -305,14 +327,8 @@ aFewNumbers.onComplete {
 ### Callback com foreach
 
 ```scala
-​
-import scala.util.Random
-import scala.util.{ Success, Failure}
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-​
-​
-val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+​val aFewNumbers : Future[List[Int]] =
+  Future { List.fill(5)(Random.nextInt) }
 ​
 aFewNumbers.foreach(numList => numList map println)
 ​
@@ -387,14 +403,13 @@ val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
 ### Future composition com For
 
 ```scala
-import scala.util.Random
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
-def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
+def allTens(numList: List[Int]): Future[List[Int]] =
+  Future{ numList.map(num => 10)}
 
-val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+val aFewNumbers : Future[List[Int]] =
+  Future { List.fill(5)(Random.nextInt) }
 
 val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
 
@@ -434,10 +449,19 @@ object Government {
 ```
 
 
+---
+@title[Escaladores]
 
+
+---
 @title[Bibliografia / Sources]
-
 
 ### Fontes:
 
-Gifs by http://slimjimstudios.tumblr.com/
+- Gifs by http://slimjimstudios.tumblr.com/
+
+- [The Neophyte's Guide to Scala](http://danielwestheide.com/scala/neophytes.html)
+
+- [Scala Docs](https://docs.scala-lang.org/overviews/)
+
+- Learning Concurrent Programming in Scala - 2nd Edition
