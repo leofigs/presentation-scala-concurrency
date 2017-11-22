@@ -13,6 +13,12 @@
 - leofigs no gmail
 - @leonardofigs no Twitter
 
+---
+@title[Conceitos]
+
+## Conceitos
+
+![Conceitos](assets/concepts.gif)
 
 ---
 @title[O que é Paralelismo]
@@ -113,8 +119,9 @@ Deadlock é a situação onde dois ou mais processos esperam um ao outro para co
 ---
 @title[Scala]
 
-
 ## Scala
+
+![scala](assets/scala_ninja.gif)
 
 Note:
 - Lançada em 2003
