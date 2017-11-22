@@ -50,9 +50,9 @@ Note:
 
 ## Sincrono x Assincrono
 
-Sincrono: Atividades ou processos que começam e terminam de forma sequencial. Se for mais de um processo interdependente eles coordenam o momento de executar.
+Sincrono: Atividades ou processos que começam e terminam de forma sequencial ou coordenanda.
 
-![sync](assets/sync.gif)
+<img src="assets/sync.gif" alt="Sync" style="height: 400px;"/>
 
 ---
 @title[Sincrono x Assincrono 2 ]
