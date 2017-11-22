@@ -144,16 +144,126 @@ Note:
 - Scala é uma das linguagens principais
 - Scala é utilizada desde 2013
 ---
-
 @title[Concorrencia e Scala]
 
-## Concorrencia e Scala
+### Concorrencia e Scala
 
+- Atomic Variables
 - Software Transaction Memory (STM)
 - Coleções paralelas
 - Futures e Promises
 - Actors
+---
+@title[Atomic Variables]
 
+## Atomic Variables
+
+Note:
+lock-free thread-safe operations on single variables.
+
+---
+@title[Atomic Variables - Caracteristicas]
+
+## Características
+
+- Operações atômicas thread-safe em variáveis ( Building blocks ) |
+- Implementadas a nível de máquina utilizando instruções do processador |
+- Não usa locks / non-blocking (em teoria, dependendo da JVM) |
+- Operações linearizáveis = instantâneas |
+- compare-and-set or compare-and-swap (CAS) |
+
+---
+@title[CAS - Source example]
+
+## Source do AtomicInteger
+
+```java
+public final int updateAndGet(IntUnaryOperator updateFunction) {
+        int prev, next;
+        do {
+            prev = get();
+            next = updateFunction.applyAsInt(prev);
+        } while (!compareAndSet(prev, next));
+        return next;
+    }
+```
+
+---
+@title[Atomic Variables - Scala]
+
+## Exemplo de uso com Scala
+
+```scala
+@tailrec def getUniqueId(): Long = {
+     val oldUid = uid.get
+     val newUid = oldUid + 1
+     if (uid.compareAndSet(oldUid, newUid)) newUid
+     else getUniqueId()
+}
+```
+
+---
+@title[STM]
+
+## Software Transaction Memory
+
+Note:
+Segue um principio parecido com transacoes de banco
+Compoem melhores que variaveis atomicas
+
+---
+@title[STM - Conceitos]
+
+### Conceitos
+
+- Blocos atomicos/delimitados |
+- Escreve em log para depois aplicar os valores |
+- Rollback / Retry |
+
+---
+@title[STM - Exemplo Conceitual]
+
+### Exemplo conceitual
+
+```scala
+def swap() = atomic {
+  val tmp = a
+  a= b
+  b = tmp
+}
+
+def inc() = atomic { a = a + 1 }
+```
+---
+@title[STM - Exemplo Conceitual Grafico]
+
+### Transação STM
+
+![STM](assets/stm.png)
+
+---
+@title[ScalaSTM]
+
+### ScalaSTM (https://nbronson.github.io/scala-stm/)
+
+- Biblioteca mais conhecida |
+- Criada pelo Scala STM expert group (Martin Odersky, Jonas Bonér(Akka), ...) |
+- API + Implementação de referência |
+
+---
+@title[ScalaSTM - Example]
+
+### Exemplo
+
+```scala
+val urls = Ref[List[String]](Nil)
+val clen = Ref(0)
+
+def addUrl(url: String): Unit = atomic { implicit txn =>
+     urls() = url :: urls()
+     clen() = clen() + url.length + 1
+}
+```
 ---
 @title[Collections paralelas]
 
@@ -179,8 +289,8 @@ Varios fatores influenciam:
 
 ### Collections paralelas
 
-- Existem versões para as collections mais comuns |
 - Muito facil de usar (.par) |
+- Existem versões para as collections mais comuns |
 - Não é indicado para todos os usos ( teste sempre )
 
 
@@ -188,100 +298,26 @@ Note:
 Algumas operações são fáceis de paralelizar
 
 ---
-@title[Collections paralelas - Benchmark]
+@title[Collections paralelas - Exemplo]
 
-### É mais rapido mesmo?
+### Exemplo
 
-Benchmarks:
-
-Macbook 2,6 GHz Intel Core i7 16 GB RAM 2133 MHz DDR3
-
-OpenJDK Java Microbenchmark Harness (JMH): 10 warmups e 10 iterações de medição
-
----
-@title[Collections paralelas - Benchmark 1]
-
-### Benchmark Seq.max
 
 ```scala
-class SeqMax {
+class ParallelCollections {
 
-  def nextLong = Random.nextLong
+  def SeqMaxSequential =  Seq.fill(10000)(nextLong).max
 
-  @Benchmark
-  def maxSequential =  Seq.fill(10000)(nextLong).max
+  def SeqMaxParallel   =  Seq.fill(10000)(nextLong).par.max
 
-  @Benchmark
-  def maxParallel   =  Seq.fill(10000)(nextLong).par.max
+  def VectorMaxSequential =  Vector.fill(10000)(nextLong).max
+
+  def VectorMaxParallel   =  Vector.fill(10000)(nextLong).par.max
 
 }
 ```
-
-@[5-6](Execução Sequencial)
-@[8-9](Execução Paralela)
----
-@title[Collections paralelas - Benchmark 1 Result]
-
-### Resultado
-
-```
-[info] Benchmark             Mode  Cnt  Score   Error  Units
-[info] SeqMax.maxParallel    avgt   10  0.541 ± 0.011  ms/op
-[info] SeqMax.maxSequential  avgt   10  0.341 ± 0.010  ms/op
-```
-
-Paralelo:   0.011 ms/op [Average]
-Sequencial: **0.010 ms/op [Average]**
-
----
-@title[Collections paralelas - Benchmark 1 Result]
-
-Mas outros fatores podem influenciar, como por exemplo o *ThreadLocalRandom* que tem performance multi-threaded melhor que o Random
-
-
-Com ThreadLocalRandom:
-
-Paralelo:   **0.011 ms/op [Average]**
-Sequencial: 0.014 ms/op [Average]
-
-
----
-@title[Collections paralelas - Benchmark 2]
-
-```scala
-class VectorMax {
-
-  def nextLong = ThreadLocalRandom.current.nextLong
-
-  @Benchmark
-  def maxSequential =  Vector.fill(10000)(nextLong).max
-
-  @Benchmark
-  def maxParallel   =  Vector.fill(10000)(nextLong).par.max
-
-}
-```
-
-@[5-6](Execução Sequencial)
-@[8-9](Execução Paralela)
-
----
-@title[Collections paralelas - Benchmark 2 Result]
-
-### Resultado
-
-```
-[info] Benchmark                Mode  Cnt  Score   Error  Units
-[info] VectorMax.maxParallel    avgt   20  2.243 ± 0.073  ms/op
-[info] VectorMax.maxSequential  avgt   20  2.063 ± 0.137  ms/op
-```
-
-Paralelo:   **0.073 ms/op [Average]**
-Sequencial: 0.137 ms/op [Average]
-
-
-Note:
-Amostragem maior = melhor performance no paralelo
+@[3,7](Execução Sequencial)
+@[5,9](Execução Paralela)
 
 
 ---
