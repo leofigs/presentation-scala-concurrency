@@ -138,7 +138,7 @@ Note:
 @title[Uso real Scala - 99]
 ### E é utilizada mesmo?
 
-![99 Scala](assets/99_active_repos.png)
+<img src="assets/99_active_repos.png" alt="99_Scala" style="height: 530px;"/>
 
 Note:
 - Ativos = criados ou modificados em 2017
@@ -564,7 +564,7 @@ object Government {
 
 ## Estamos contratando
 
-![99](assets/logo99_big.png)
+<img src="assets/logo99_big.png" alt="99_Logo" style="height: 40px;"/>
 
 **The End**
 ---
