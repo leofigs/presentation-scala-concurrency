@@ -241,7 +241,7 @@ def inc() = atomic { a = a + 1 }
 
 ### Transação STM
 
-<img src="assets/stm.png" alt="STM" style="height: 700px;"/>
+<img src="assets/stm.png" alt="STM" style="height: 530px;"/>
 
 ---
 @title[ScalaSTM]
@@ -557,3 +557,14 @@ object Government {
 - [Scala Docs](https://docs.scala-lang.org/overviews/)
 
 - Learning Concurrent Programming in Scala - 2nd Edition
+
+
+---
+@title[The End]
+
+## Estamos contratando
+
+![99](assets/logo99_big.png)
+
+**The End**
+---
