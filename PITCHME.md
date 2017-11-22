@@ -117,7 +117,7 @@ Deadlock é a situação onde dois ou mais processos esperam um ao outro para co
 ## Scala
 
 Note:
-- Lançada em 2014
+- Lançada em 2003
 - Criada por Martim Odersky
 - Multi paradigmas ( Funcional + OO)
 - Compilada para bytecode Java
