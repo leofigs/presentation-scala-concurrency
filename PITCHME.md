@@ -564,7 +564,7 @@ object Government {
 
 ## Estamos contratando
 
-<img src="assets/logo99_big.png" alt="99_Logo" style="height: 40px;"/>
+<img src="assets/logo99_big.png" class="no-border" alt="99_Logo" style="height: 400px;"/>
 
 **The End**
 ---
