@@ -61,17 +61,12 @@ Sincrono: Atividades ou processos que começam e terminam de forma sequencial ou
 
 Assincrono: Atividades ou processos executam de forma não sequencial.
 
-![sync](assets/assync.gif)
+<img src="assets/assync.gif" alt="Assync" style="height: 400px;"/>
 
 ---
 @title[Problemas de concorrencia]
 
 ## Problemas de concorrencia
-
-- Não determinismo
-- Race condition
-- Deadlocks
-- Resource starvation
 
 ---
 @title[Não determinismo]
@@ -246,12 +241,13 @@ def inc() = atomic { a = a + 1 }
 
 ### Transação STM
 
-![STM](assets/stm.png)
+<img src="assets/stm.png" alt="STM" style="height: 700px;"/>
 
 ---
 @title[ScalaSTM]
 
-### ScalaSTM (https://nbronson.github.io/scala-stm/)
+### ScalaSTM
+https://nbronson.github.io/scala-stm/
 
 - Biblioteca mais conhecida |
 - Criada pelo Scala STM expert group (Martin Odersky, Jonas Bonér(Akka), ...) |
@@ -298,7 +294,7 @@ Varios fatores influenciam:
 
 - Muito facil de usar (.par) |
 - Existem versões para as collections mais comuns |
-- Não é indicado para todos os usos ( teste sempre )
+- Não é indicado para todos os usos ( teste sempre ) |
 
 
 Note:
@@ -415,17 +411,13 @@ Um Future pode finalizar com **sucesso** ou **falha**.
 ### Callback
 
 ```scala
-import scala.util.Random
-import scala.util.{ Success, Failure}
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-
-
 val aFewNumbers : Future[List[Int]] = Future { List.fill(10)(Random.nextInt) }
 
 aFewNumbers.onComplete {
-  case Success(numbersList) => println("Os números são " + numbersList.toString)
-  case Failure(err) 				=> println("Sem números para você :(")
+  case Success(numbersList) =>
+    println("Os números são " + numbersList.toString)
+  case Failure(err) 				=>
+    println("Sem números para você :(")
 }
 ```
 
@@ -440,7 +432,8 @@ aFewNumbers.onComplete {
 ​
 aFewNumbers.foreach(numList => numList map println)
 ​
-aFewNumbers.failed.foreach(err => println(s"The house felt down. Error $err"))
+aFewNumbers.failed.foreach(err =>
+  println(s"The house felt down. Error $err"))
 ```
 
 Note:
@@ -454,14 +447,12 @@ Codigo: string interpolation
 ### Mapping the Future
 
 ```scala
-import scala.util.Random
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
+val aFewNumbers : Future[List[Int]] =
+  Future { List.fill(5)(Random.nextInt) }
 
-val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
-
-val onlyTens: Future[List[Int]] = aFewNumbers.map(numList => numList.map(num => 10))
+val onlyTens: Future[List[Int]] =
+  aFewNumbers.map(numList => numList.map(num => 10))
 
 onlyTens.foreach(numList => numList map println)
 ```
@@ -471,17 +462,13 @@ onlyTens.foreach(numList => numList map println)
 ### Future of Future
 
 ```scala
-import scala.util.Random
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+def allTens(numList: List[Int]): Future[List[Int]] =
+  Future{ numList.map(num => 10)}
 
-
-def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
-
-val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+val aFewNumbers : Future[List[Int]] =
+  Future { List.fill(5)(Random.nextInt) }
 
 val onlyTens = aFewNumbers.map(numList => allTens(numList))
-
 ```
 
 @[10](O tipo de onlyTens é Future[Future[List[Int]]])
@@ -491,14 +478,11 @@ val onlyTens = aFewNumbers.map(numList => allTens(numList))
 ### Flatmapping the Future
 
 ```scala
-import scala.util.Random
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+def allTens(numList: List[Int]): Future[List[Int]] =
+  Future{ numList.map(num => 10)}
 
-
-def allTens(numList: List[Int]): Future[List[Int]] = Future{ numList.map(num => 10)}
-
-val aFewNumbers : Future[List[Int]] = Future { List.fill(5)(Random.nextInt) }
+val aFewNumbers : Future[List[Int]] =
+  Future { List.fill(5)(Random.nextInt) }
 
 val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
 ```
@@ -511,8 +495,6 @@ val onlyTens = aFewNumbers.flatMap(numList => allTens(numList))
 ### Future composition com For
 
 ```scala
-
-
 def allTens(numList: List[Int]): Future[List[Int]] =
   Future{ numList.map(num => 10)}
 
@@ -558,7 +540,9 @@ object Government {
 
 
 ---
-@title[Escaladores]
+@title[Actors]
+
+## Actors
 
 
 ---
